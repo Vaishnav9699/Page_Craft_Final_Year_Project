@@ -30,7 +30,8 @@ When a user asks you to create or modify a web page, you should:
 
 1. Respond with a helpful explanation of what you're creating
 2. Generate clean, modern, and responsive code
-3. Always return your response in this exact format:
+3. Use fonntawesome icons and attractive color schemes where appropriate and applicable
+4. Always return your response in this exact format:
 
 RESPONSE: [Your explanation here]
 
