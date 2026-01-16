@@ -33,6 +33,7 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newProjectModalOpen, setNewProjectModalOpen] = useState(false);
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [generatedCode, setGeneratedCode] = useState({
     html: '<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600"><div class="text-center text-white p-8 rounded-lg bg-black bg-opacity-20 backdrop-blur-sm"></div></div>',
     css: `
@@ -96,7 +97,9 @@ export default function Home() {
   const [hasGeneratedCode, setHasGeneratedCode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'projects' | 'chat' | 'files'>('projects');
+  const [activeTab, setActiveTab] = useState<'projects' | 'chat'>('projects');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [mobileView, setMobileView] = useState<'chat' | 'preview'>('chat'); // Mobile toggle between chat and preview
   const [generatedPages, setGeneratedPages] = useState<Record<string, { title: string; html: string; css: string; js: string; }> | undefined>(undefined);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [renameProjectId, setRenameProjectId] = useState<string | null>(null);
@@ -126,6 +129,23 @@ export default function Home() {
       setHasGeneratedCode(true);
     }
   }, [currentProject]);
+
+  // Close download menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (downloadMenuOpen && !target.closest('.download-menu-container')) {
+        setDownloadMenuOpen(false);
+      }
+    };
+
+    if (downloadMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [downloadMenuOpen]);
 
   // Initialize falling stars effect for projects page
   useEffect(() => {
@@ -369,13 +389,14 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
   return (
     <div className={`relative flex flex-col h-screen overflow-hidden ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 flex items-center justify-between px-4 py-3 border-b ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm z-10`}>
-        <div className="flex items-center space-x-4">
-          <h1 className={`text-xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            PageCrafter
+      <header className={`fixed top-0 left-0 right-0 flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm z-50`}>
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          <h1 className={`text-lg sm:text-xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <span className="hidden sm:inline">PageCrafter</span>
+            <span className="sm:hidden">PC</span>
           </h1>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           {/* Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}
@@ -393,65 +414,134 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
             )}
           </button>
 
-          {/* Settings Button */}
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className={`p-2 rounded-lg transition-colors ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
-            title="Settings"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          {/* Download Button with Dropdown */}
+          <div className="relative download-menu-container">
+            <button
+              onClick={() => setDownloadMenuOpen(!downloadMenuOpen)}
+              className={`p-2 rounded-lg transition-colors ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+              title="Download Project"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
+
+            {/* Download Dropdown Menu */}
+            {downloadMenuOpen && (
+              <div className={`absolute right-0 mt-2 w-48 sm:w-56 rounded-lg shadow-lg z-50 ${theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
+                <div className="py-1">
+                  <div className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Export Options
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleExportCode('html');
+                      setDownloadMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm transition-colors flex items-center space-x-2 sm:space-x-3 ${theme === 'dark' ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <div>
+                      <div className="font-medium">Download as HTML</div>
+                      <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Single HTML file</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExportCode('zip');
+                      setDownloadMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm transition-colors flex items-center space-x-2 sm:space-x-3 ${theme === 'dark' ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                    </svg>
+                    <div>
+                      <div className="font-medium">Download as ZIP</div>
+                      <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Separate HTML, CSS & JS files</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       {/* Tabs */}
-      <div className={`flex border-b ${theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
-        <button
-          onClick={() => setActiveTab('projects')}
-          className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === 'projects'
-            ? theme === 'dark'
-              ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-900'
-              : 'text-blue-600 border-b-2 border-blue-600 bg-gray-50'
-            : theme === 'dark'
-              ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-        >
-          📋 Projects
-        </button>
-        <button
-          onClick={() => setActiveTab('chat')}
-          className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === 'chat'
-            ? theme === 'dark'
-              ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-900'
-              : 'text-blue-600 border-b-2 border-blue-600 bg-gray-50'
-            : theme === 'dark'
-              ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-        >
-          💬 Chat
-        </button>
-        <button
-          onClick={() => setActiveTab('files')}
-          className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === 'files'
-            ? theme === 'dark'
-              ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-900'
-              : 'text-blue-600 border-b-2 border-blue-600 bg-gray-50'
-            : theme === 'dark'
-              ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-        >
-          📁 Files
-        </button>
+      <div className={`fixed top-[45px] sm:top-[53px] left-0 right-0 flex items-center justify-between border-b ${theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'} z-40`}>
+        <div className="flex flex-1 sm:flex-none">
+          <button
+            onClick={() => setActiveTab('projects')}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-colors ${activeTab === 'projects'
+              ? theme === 'dark'
+                ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-900'
+                : 'text-blue-600 border-b-2 border-blue-600 bg-gray-50'
+              : theme === 'dark'
+                ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+          >
+            📋 Projects
+          </button>
+          <button
+            onClick={() => setActiveTab('chat')}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-colors ${activeTab === 'chat'
+              ? theme === 'dark'
+                ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-900'
+                : 'text-blue-600 border-b-2 border-blue-600 bg-gray-50'
+              : theme === 'dark'
+                ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+          >
+            💬 Chat
+          </button>
+        </div>
+
+        {/* Toggle View Buttons */}
+        {activeTab === 'projects' && (
+          <div className="hidden sm:flex items-center space-x-1 mr-2 sm:mr-4">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid'
+                ? theme === 'dark'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-blue-600 text-white'
+                : theme === 'dark'
+                  ? 'hover:bg-gray-700 text-gray-300'
+                  : 'hover:bg-gray-100 text-gray-600'
+                }`}
+              title="Grid View"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'list'
+                ? theme === 'dark'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-blue-600 text-white'
+                : theme === 'dark'
+                  ? 'hover:bg-gray-700 text-gray-300'
+                  : 'hover:bg-gray-100 text-gray-600'
+                }`}
+              title="List View"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* Main Content Area - Add padding-top to account for fixed header and tabs */}
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden pt-[85px] sm:pt-[105px]">
         {/* Sidebar */}
         <Sidebar
           isOpen={sidebarOpen}
@@ -463,28 +553,28 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
         />
 
         {/* Main Content */}
-        <div className="flex flex-1 relative">
+        <div className="flex flex-col md:flex-row flex-1 relative w-full">
           {activeTab === 'projects' ? (
             /* Projects Overview */
-            <div className={`flex-1 flex flex-col relative overflow-hidden ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+            <div className={`flex-1 flex flex-col relative overflow-y-auto ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
               {/* Falling Stars Background */}
               <div className="absolute inset-0 pointer-events-none">
                 <div id="stars-container" className="absolute inset-0"></div>
               </div>
-              <div className="flex-1 p-8">
+              <div className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="max-w-6xl mx-auto">
-                  <div className="text-center mb-12">
-                    <h2 className={`text-4xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <div className="text-center mb-8 sm:mb-12">
+                    <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                       Welcome to PageCrafter
                     </h2>
-                    <p className={`text-xl mb-8 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <p className={`text-base sm:text-lg md:text-xl mb-6 sm:mb-8 px-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                       Create amazing web projects with AI-powered development
                     </p>
                     <button
                       onClick={handleNewProject}
-                      className="inline-flex items-center px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+                      className="inline-flex items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-blue-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
                     >
-                      <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                       Create New Project
@@ -493,30 +583,30 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
 
                   {projects.length > 0 && (
                     <div>
-                      <h3 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                      <h3 className={`text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                         Your Projects
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6' : 'flex flex-col space-y-3 sm:space-y-4'}>
                         {projects.map((project) => (
                           <div
                             key={project.id}
-                            className={`group relative p-6 rounded-lg border cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${theme === 'dark'
+                            className={`group relative ${viewMode === 'grid' ? 'p-4 sm:p-5 md:p-6' : 'p-3 sm:p-4 flex items-center'} rounded-lg border cursor-pointer transition-all duration-300 ${viewMode === 'grid' ? 'hover:shadow-xl sm:hover:shadow-2xl hover:-translate-y-1 sm:hover:-translate-y-2' : 'hover:shadow-lg'} ${theme === 'dark'
                               ? 'bg-gray-800/80 backdrop-blur-sm border-gray-700 hover:bg-gray-750 hover:border-transparent'
                               : 'bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-gray-50 hover:border-transparent'
-                              } hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] before:absolute before:inset-0 before:rounded-lg before:p-[2px] before:bg-gradient-to-r before:from-blue-400 before:via-purple-400 before:to-pink-400 before:opacity-0 hover:before:opacity-70 before:transition-opacity before:duration-300 before:pointer-events-none`}
-                            style={{
+                              } ${viewMode === 'grid' ? 'hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] before:absolute before:inset-0 before:rounded-lg before:p-[2px] before:bg-gradient-to-r before:from-blue-400 before:via-purple-400 before:to-pink-400 before:opacity-0 hover:before:opacity-70 before:transition-opacity before:duration-300 before:pointer-events-none' : ''}`}
+                            style={viewMode === 'grid' ? {
                               background: theme === 'dark'
                                 ? 'linear-gradient(135deg, rgba(31,41,55,0.8), rgba(17,24,39,0.8))'
                                 : 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(248,250,252,0.8))'
-                            }}
+                            } : undefined}
                             onClick={() => {
                               setCurrentProject(project);
                               setActiveTab('chat');
                             }}
                           >
-                            <div className="relative z-10">
+                            <div className={`relative z-10 ${viewMode === 'list' ? 'flex items-center flex-1' : ''}`}>
                               {/* Three-dot menu button */}
-                              <div className="absolute top-0 right-0">
+                              <div className={viewMode === 'list' ? 'ml-auto flex items-center space-x-4' : 'absolute top-0 right-0'}>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -572,65 +662,69 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                                 )}
                               </div>
 
-                              <h4 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                                {renameProjectId === project.id ? (
-                                  <input
-                                    type="text"
-                                    defaultValue={project.name}
-                                    onBlur={(e) => {
-                                      const newName = e.target.value.trim();
-                                      if (newName && newName !== project.name) {
-                                        setProjects(prev => prev.map(p =>
-                                          p.id === project.id ? { ...p, name: newName } : p
-                                        ));
-                                        if (currentProject?.id === project.id) {
-                                          setCurrentProject(prev => prev ? { ...prev, name: newName } : null);
+                              <div className={viewMode === 'list' ? 'flex-1' : ''}>
+                                <h4 className={`${viewMode === 'list' ? 'text-lg' : 'text-xl'} font-semibold ${viewMode === 'list' ? 'mb-1' : 'mb-2'} ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                  {renameProjectId === project.id ? (
+                                    <input
+                                      type="text"
+                                      defaultValue={project.name}
+                                      onBlur={(e) => {
+                                        const newName = e.target.value.trim();
+                                        if (newName && newName !== project.name) {
+                                          setProjects(prev => prev.map(p =>
+                                            p.id === project.id ? { ...p, name: newName } : p
+                                          ));
+                                          if (currentProject?.id === project.id) {
+                                            setCurrentProject(prev => prev ? { ...prev, name: newName } : null);
+                                          }
                                         }
-                                      }
-                                      setRenameProjectId(null);
-                                    }}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') {
-                                        e.currentTarget.blur();
-                                      } else if (e.key === 'Escape') {
                                         setRenameProjectId(null);
-                                      }
-                                    }}
-                                    className={`w-full px-2 py-1 rounded border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                                    autoFocus
-                                  />
-                                ) : (
-                                  project.name
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.currentTarget.blur();
+                                        } else if (e.key === 'Escape') {
+                                          setRenameProjectId(null);
+                                        }
+                                      }}
+                                      className={`w-full px-2 py-1 rounded border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    project.name
+                                  )}
+                                </h4>
+                                {project.description && viewMode === 'grid' && (
+                                  <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    {project.description}
+                                  </p>
                                 )}
-                              </h4>
-                              {project.description && (
-                                <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                                  {project.description}
+                                <p className={`text-sm ${viewMode === 'list' ? 'mb-0' : 'mb-4'} ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                                  {project.messages.length} messages • {project.files.length} files
                                 </p>
-                              )}
-                              <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                                {project.messages.length} messages • {project.files.length} files
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <p className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
-                                  Created {project.createdAt.toLocaleDateString()}
-                                </p>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleShareToGitHub(project);
-                                  }}
-                                  className={`flex items-center space-x-1 px-3 py-1 rounded-md text-xs font-medium transition-colors ${theme === 'dark'
-                                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                                    }`}
-                                  title="Share to GitHub"
-                                >
-                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                                  </svg>
-                                  <span>Share</span>
-                                </button>
+                                {viewMode === 'grid' && (
+                                  <div className="flex items-center justify-between">
+                                    <p className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+                                      Created {project.createdAt.toLocaleDateString()}
+                                    </p>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleShareToGitHub(project);
+                                      }}
+                                      className={`flex items-center space-x-1 px-3 py-1 rounded-md text-xs font-medium transition-colors ${theme === 'dark'
+                                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                        }`}
+                                      title="Share to GitHub"
+                                    >
+                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                      </svg>
+                                      <span>Share</span>
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -641,33 +735,53 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                 </div>
               </div>
             </div>
-          ) : activeTab === 'chat' ? (
-            <>
-              {/* Chat Panel */}
-              <ChatPanel
-                onCodeGenerated={handleCodeGeneration}
-                onLoadingChange={setIsLoading}
-                currentProject={currentProject}
-                onMessagesUpdate={handleMessagesUpdate}
-                onCodeUpdate={handleCodeUpdate}
-                onShowSettings={() => setSettingsOpen(true)}
-                onShowHistory={() => {/* TODO: Show history modal */ }}
-              />
-
-              {/* Preview Panel */}
-              <PreviewPanel code={generatedCode} pages={generatedPages} isVisible={hasGeneratedCode} isLoading={isLoading} />
-            </>
           ) : (
-            /* Project Files */
-            <ProjectFiles
-              currentProject={currentProject}
-              onProjectUpdate={(updatedProject) => {
-                setProjects(prev => prev.map(p =>
-                  p.id === updatedProject.id ? updatedProject : p
-                ));
-                setCurrentProject(updatedProject);
-              }}
-            />
+            <>
+              {/* Mobile Toggle Button - Only visible on mobile when code is generated */}
+              {hasGeneratedCode && (
+                <div className="md:hidden fixed bottom-4 right-4 z-50">
+                  <button
+                    onClick={() => setMobileView(mobileView === 'chat' ? 'preview' : 'chat')}
+                    className={`flex items-center space-x-2 px-4 py-3 rounded-full shadow-lg transition-all ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                  >
+                    {mobileView === 'chat' ? (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span className="text-sm font-medium">View Preview</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <span className="text-sm font-medium">Back to Chat</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Chat Panel - Show based on mobile view state */}
+              <div className={`${mobileView === 'chat' ? 'block' : 'hidden'} md:block w-full md:w-1/2 h-full`}>
+                <ChatPanel
+                  onCodeGenerated={handleCodeGeneration}
+                  onLoadingChange={setIsLoading}
+                  currentProject={currentProject}
+                  onMessagesUpdate={handleMessagesUpdate}
+                  onCodeUpdate={handleCodeUpdate}
+                  onShowSettings={() => setSettingsOpen(true)}
+                  onShowHistory={() => {/* TODO: Show history modal */ }}
+                />
+              </div>
+
+              {/* Preview Panel - Show based on mobile view state */}
+              <div className={`${mobileView === 'preview' ? 'block' : 'hidden'} md:block w-full md:w-1/2 h-full`}>
+                <PreviewPanel code={generatedCode} pages={generatedPages} isVisible={hasGeneratedCode} isLoading={isLoading} />
+              </div>
+            </>
           )}
         </div>
       </div>

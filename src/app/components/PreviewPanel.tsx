@@ -89,9 +89,8 @@ export default function PreviewPanel({ code, pages, isVisible, isLoading = false
   }, [pages]);
 
   return (
-    <div className={`flex flex-col h-full overflow-y-scroll transition-all duration-500 ease-in-out transform ${
-      isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
-    } md:w-1/2 w-full absolute right-0 top-12 bg-background border-l border-border z-0`}>
+    <div className={`flex flex-col h-full transition-all duration-500 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      } bg-background border-t md:border-t-0 md:border-l border-border overflow-hidden`}>
       {/* Page Navigation */}
       {pages && Object.keys(pages).length > 1 && (
         <div className="flex border-b border-border bg-card">
@@ -99,11 +98,10 @@ export default function PreviewPanel({ code, pages, isVisible, isLoading = false
             <button
               key={pageKey}
               onClick={() => setActivePage(pageKey)}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                activePage === pageKey
-                  ? 'text-primary border-b-2 border-primary bg-accent'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-              }`}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${activePage === pageKey
+                ? 'text-primary border-b-2 border-primary bg-accent'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                }`}
             >
               {pageData.title}
             </button>
