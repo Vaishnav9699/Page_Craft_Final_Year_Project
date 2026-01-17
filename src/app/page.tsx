@@ -414,18 +414,22 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
   return (
     <div className={`relative flex flex-col h-screen overflow-hidden ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b backdrop-blur-xl ${theme === 'dark' ? 'bg-gray-900/80 border-gray-700/50' : 'bg-white/80 border-gray-200/50'} shadow-lg z-50`}>
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <h1 className={`text-lg sm:text-xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            <span className="hidden sm:inline">PageCrafter</span>
-            <span className="sm:hidden">PC</span>
+      <header className={`fixed top-0 left-0 right-0 flex items-center justify-between px-4 sm:px-6 py-3 border-b backdrop-blur-xl ${theme === 'dark' ? 'bg-gray-900/80 border-gray-800/50' : 'bg-white/80 border-gray-200/50'} shadow-lg shadow-black/5 z-50`}>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <span className="text-white font-bold text-sm">PC</span>
+          </div>
+          <h1 className={`text-lg sm:text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <span className="hidden sm:inline">Page</span>
+            <span className="hidden sm:inline gradient-text">Crafter</span>
+            <span className="sm:hidden gradient-text">PageCrafter</span>
           </h1>
         </div>
-        <div className="flex items-center space-x-1 sm:space-x-2">
+        <div className="flex items-center gap-2">
           {/* API Key Button */}
           <button
             onClick={() => setApiKeyModalOpen(true)}
-            className={`p-2 rounded-lg transition-colors ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+            className={`p-2.5 rounded-xl transition-all duration-200 ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400 hover:text-amber-400' : 'hover:bg-gray-100 text-gray-500 hover:text-amber-600'}`}
             title="Set API Key"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -436,7 +440,7 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
           {/* Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-lg transition-colors ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+            className={`p-2.5 rounded-xl transition-all duration-200 ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400 hover:text-yellow-400' : 'hover:bg-gray-100 text-gray-500 hover:text-indigo-600'}`}
             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {theme === 'dark' ? (
@@ -481,29 +485,42 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
               </div>
               <div className="flex-1 p-4 sm:p-6 md:p-8">
                 <div className="max-w-6xl mx-auto">
-                  <div className="text-center mb-8 sm:mb-12">
-                    <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                      Welcome to PageCrafter
+                  {/* Hero Section with enhanced visuals */}
+                  <div className="text-center mb-12 sm:mb-16 md:mb-20 pt-4 sm:pt-8">
+                    {/* Decorative element */}
+                    <div className="flex justify-center mb-6">
+                      <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${theme === 'dark' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
+                        <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                        AI-Powered Development
+                      </div>
+                    </div>
+
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 tracking-tight">
+                      <span className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>Welcome to </span>
+                      <span className="gradient-text">PageCrafter</span>
                     </h2>
-                    <p className={`text-base sm:text-lg md:text-xl mb-6 sm:mb-8 px-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                      Create amazing web projects with AI-powered development
+
+                    <p className={`text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 px-4 max-w-2xl mx-auto font-light ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Create stunning web projects with the power of artificial intelligence
                     </p>
 
                     {/* Show login prompt if not authenticated */}
                     {!user && !authLoading ? (
-                      <div className={`max-w-md mx-auto p-6 rounded-xl border ${theme === 'dark' ? 'bg-gray-800/50 border-gray-700' : 'bg-white/50 border-gray-200'} backdrop-blur-sm`}>
-                        <div className="mb-4">
-                          <svg className={`w-12 h-12 mx-auto mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <div className={`max-w-md mx-auto p-8 rounded-2xl glass glow-hover ${theme === 'dark' ? 'bg-gray-800/40' : 'bg-white/60'}`}>
+                        <div className="mb-6">
+                          <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${theme === 'dark' ? 'bg-indigo-500/20' : 'bg-indigo-100'}`}>
+                            <svg className={`w-8 h-8 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                          <p className={`text-base ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
                             Sign in to create and manage your projects
                           </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                           <Link
                             href="/login"
-                            className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+                            className="inline-flex items-center justify-center px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5"
                           >
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -512,9 +529,9 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                           </Link>
                           <Link
                             href="/register"
-                            className={`inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg transition-colors ${theme === 'dark'
-                              ? 'bg-gray-700 text-white hover:bg-gray-600'
-                              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                            className={`inline-flex items-center justify-center px-6 py-3.5 font-semibold rounded-xl transition-all duration-300 border ${theme === 'dark'
+                              ? 'bg-white/5 text-white hover:bg-white/10 border-white/10 hover:border-white/20'
+                              : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200 hover:border-gray-300'
                               }`}
                           >
                             Create Account
@@ -524,32 +541,38 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                     ) : user ? (
                       <button
                         onClick={handleNewProject}
-                        className="inline-flex items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 cursor-pointer"
+                        className="inline-flex items-center px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white text-base sm:text-lg md:text-xl font-semibold rounded-2xl hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-700 transition-all duration-500 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1 cursor-pointer pulse-button group"
                       >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                         Create New Project
                       </button>
                     ) : (
                       <div className="animate-pulse">
-                        <div className={`h-12 w-48 mx-auto rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                        <div className={`h-14 w-56 mx-auto rounded-2xl ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-200'}`}></div>
                       </div>
                     )}
                   </div>
 
                   {user && projects.length > 0 && (
                     <div>
-                      <h3 className={`text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                        Your Projects
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-                        {projects.map((project) => (
+                      <div className="flex items-center justify-between mb-6 sm:mb-8">
+                        <h3 className={`text-xl sm:text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                          Your Projects
+                        </h3>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${theme === 'dark' ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
+                          {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+                        {projects.map((project, index) => (
                           <div
                             key={project.id}
-                            className={`group relative p-4 sm:p-5 md:p-6 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${theme === 'dark'
-                              ? 'bg-gray-800/60 backdrop-blur-md border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/80'
-                              : 'bg-white/60 backdrop-blur-md border-gray-200/50 hover:border-blue-400/50 hover:bg-white/80'
+                            style={{ animationDelay: `${index * 0.1}s` }}
+                            className={`group relative p-5 sm:p-6 rounded-2xl border cursor-pointer card-hover glow-hover animate-fade-in ${theme === 'dark'
+                              ? 'bg-gray-800/50 backdrop-blur-xl border-gray-700/30 hover:border-indigo-500/50 hover:bg-gray-800/70'
+                              : 'bg-white/70 backdrop-blur-xl border-gray-200/50 hover:border-indigo-400/50 hover:bg-white/90'
                               } ${menuOpen === project.id ? 'z-30' : ''}`}
                             onClick={() => {
                               setCurrentProject(project);
@@ -635,7 +658,7 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                               </div>
 
                               <div>
-                                <h4 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                <h4 className={`text-lg sm:text-xl font-bold mb-2 transition-colors group-hover:text-indigo-500 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                                   {renameProjectId === project.id ? (
                                     <input
                                       type="text"
@@ -659,33 +682,48 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                                           setRenameProjectId(null);
                                         }
                                       }}
-                                      className={`w-full px-2 py-1 rounded border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                                      className={`w-full px-3 py-2 rounded-xl border focus-glow ${theme === 'dark' ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                                       autoFocus
+                                      onClick={(e) => e.stopPropagation()}
                                     />
                                   ) : (
                                     project.name
                                   )}
                                 </h4>
                                 {project.description && (
-                                  <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                                  <p className={`text-sm mb-3 line-clamp-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                                     {project.description}
                                   </p>
                                 )}
-                                <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                                  {project.messages.length} messages • {project.files.length} files
-                                </p>
+
+                                {/* Stats row */}
+                                <div className={`flex items-center gap-4 mb-4 py-3 border-t border-b ${theme === 'dark' ? 'border-gray-700/50' : 'border-gray-200/50'}`}>
+                                  <div className="flex items-center gap-1.5">
+                                    <svg className={`w-4 h-4 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                    <span className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{project.messages.length}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <svg className={`w-4 h-4 ${theme === 'dark' ? 'text-purple-400' : 'text-purple-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{project.files.length}</span>
+                                  </div>
+                                </div>
+
                                 <div className="flex items-center justify-between">
-                                  <p className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
-                                    Created {project.createdAt.toLocaleDateString()}
+                                  <p className={`text-xs font-medium ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                                    {project.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                   </p>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleShareToGitHub(project);
                                     }}
-                                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${theme === 'dark'
-                                      ? 'bg-gray-700/80 hover:bg-gray-600 text-gray-200 hover:text-white'
-                                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                    className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${theme === 'dark'
+                                      ? 'bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 hover:border-white/20'
+                                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 hover:border-gray-300'
                                       }`}
                                     title="Share to GitHub"
                                   >
