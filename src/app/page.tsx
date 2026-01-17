@@ -423,7 +423,7 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
   return (
     <div className={`relative flex flex-col h-screen overflow-hidden ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}>
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm z-50`}>
+      <header className={`fixed top-0 left-0 right-0 flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b backdrop-blur-xl ${theme === 'dark' ? 'bg-gray-900/80 border-gray-700/50' : 'bg-white/80 border-gray-200/50'} shadow-lg z-50`}>
         <div className="flex items-center space-x-2 sm:space-x-4">
           <h1 className={`text-lg sm:text-xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
             <span className="hidden sm:inline">PageCrafter</span>
@@ -533,7 +533,7 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                     ) : user ? (
                       <button
                         onClick={handleNewProject}
-                        className="inline-flex items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-blue-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+                        className="inline-flex items-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
                       >
                         <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -556,15 +556,10 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                         {projects.map((project) => (
                           <div
                             key={project.id}
-                            className={`group relative p-4 sm:p-5 md:p-6 rounded-lg border cursor-pointer transition-all duration-300 hover:shadow-xl sm:hover:shadow-2xl hover:-translate-y-1 sm:hover:-translate-y-2 ${theme === 'dark'
-                              ? 'bg-gray-800/80 backdrop-blur-sm border-gray-700 hover:bg-gray-750 hover:border-transparent'
-                              : 'bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-gray-50 hover:border-transparent'
-                              } hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] before:absolute before:inset-0 before:rounded-lg before:p-[2px] before:bg-gradient-to-r before:from-blue-400 before:via-purple-400 before:to-pink-400 before:opacity-0 hover:before:opacity-70 before:transition-opacity before:duration-300 before:pointer-events-none ${menuOpen === project.id ? 'z-30' : ''}`}
-                            style={{
-                              background: theme === 'dark'
-                                ? 'linear-gradient(135deg, rgba(31,41,55,0.8), rgba(17,24,39,0.8))'
-                                : 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(248,250,252,0.8))'
-                            }}
+                            className={`group relative p-4 sm:p-5 md:p-6 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${theme === 'dark'
+                              ? 'bg-gray-800/60 backdrop-blur-md border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/80'
+                              : 'bg-white/60 backdrop-blur-md border-gray-200/50 hover:border-blue-400/50 hover:bg-white/80'
+                              } ${menuOpen === project.id ? 'z-30' : ''}`}
                             onClick={() => {
                               setCurrentProject(project);
                               setActiveTab('chat');
@@ -697,9 +692,9 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                                       e.stopPropagation();
                                       handleShareToGitHub(project);
                                     }}
-                                    className={`flex items-center space-x-1 px-3 py-1 rounded-md text-xs font-medium transition-colors ${theme === 'dark'
-                                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                                      : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${theme === 'dark'
+                                      ? 'bg-gray-700/80 hover:bg-gray-600 text-gray-200 hover:text-white'
+                                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                                       }`}
                                     title="Share to GitHub"
                                   >
