@@ -42,6 +42,8 @@ export default function ChatPanel({ onCodeGenerated, onLoadingChange, currentPro
     js: ''
   });
 
+  const [activeTab, setActiveTab] = useState<'ai' | 'components' | 'styles'>('ai');
+
   // Update messages and code when currentProject changes
   useEffect(() => {
     if (currentProject) {
@@ -62,7 +64,7 @@ export default function ChatPanel({ onCodeGenerated, onLoadingChange, currentPro
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, activeTab]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +107,6 @@ export default function ChatPanel({ onCodeGenerated, onLoadingChange, currentPro
 
       // Update the generated code
       if (data.code) {
-        // Store the code globally for next request
         setLastGeneratedCode(data.code);
         onCodeUpdate?.(data.code);
         onCodeGenerated(data.code, data.pages);
@@ -122,164 +123,144 @@ export default function ChatPanel({ onCodeGenerated, onLoadingChange, currentPro
     }
   };
 
-
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      // TODO: Handle file upload logic here
       console.log('Files selected:', e.target.files);
     }
   };
 
   return (
-    <div className={`flex flex-col h-full min-h-0 transition-all duration-500 ease-in-out ${theme === 'dark' ? 'bg-gray-900' : 'bg-gradient-to-b from-indigo-50/50 to-purple-50/50'}`}>
-      {/* Header with Back Button */}
-      <div className={`flex items-center gap-3 p-4 border-b backdrop-blur-xl ${theme === 'dark' ? 'bg-gray-900/80 border-gray-800/50' : 'bg-white/80 border-gray-200/50'}`}>
-        <button
-          onClick={onBack}
-          className={`p-2.5 rounded-xl transition-all duration-200 ${theme === 'dark' ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-900'}`}
-          title="Back to Projects"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-        </button>
-        <div className="flex-1 min-w-0">
-          <h2 className={`font-bold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            {currentProject?.name || 'New Project'}
-          </h2>
-          <p className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-            {messages.length - 1} messages
-          </p>
-        </div>
-        <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${theme === 'dark' ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'}`}>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            AI Ready
-          </span>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div ref={messagesContainerRef} className={`flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 ${theme === 'dark' ? 'bg-gray-900' : 'bg-transparent'}`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        <style jsx>{`
-          div::-webkit-scrollbar {
-            display: none;
+    <div className={`flex flex-col h-full min-h-0 transition-all duration-500 ease-in-out ${theme === 'dark' ? 'bg-[#0f1117]' : 'bg-gray-50'}`}>
+      {/* Premium Tabs */}
+      <div className="flex items-center gap-1 p-2 bg-black/20 border-b border-white/5">
+        {[
+          {
+            id: 'ai', label: 'AI Assistant', icon: (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+            )
+          },
+          {
+            id: 'components', label: 'Components', icon: (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+            )
+          },
+          {
+            id: 'styles', label: 'Styles', icon: (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+            )
           }
-        `}</style>
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
-            style={{ animationDelay: `${index * 0.05}s` }}
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${activeTab === tab.id
+              ? 'bg-indigo-600/10 text-indigo-400 shadow-lg'
+              : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'}`}
           >
-            {message.role === 'assistant' && (
-              <div className={`w-8 h-8 rounded-xl mr-3 flex-shrink-0 flex items-center justify-center ${theme === 'dark' ? 'bg-indigo-500/20' : 'bg-indigo-100'}`}>
-                <svg className={`w-4 h-4 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-            )}
-            <div
-              className={`max-w-[80%] sm:max-w-[75%] p-4 rounded-2xl transition-all duration-200 ${message.role === 'user'
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
-                : theme === 'dark'
-                  ? 'bg-gray-800/70 text-gray-100 border border-gray-700/50'
-                  : 'bg-white text-gray-800 border border-gray-200/50 shadow-md'
-                }`}
-            >
-              <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
-            </div>
-            {message.role === 'user' && (
-              <div className={`w-8 h-8 rounded-xl ml-3 flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-sm font-bold`}>
-                U
-              </div>
-            )}
-          </div>
+            {tab.icon}
+            {tab.label}
+          </button>
         ))}
-
-
-
-        {isLoading && (
-          <div className="flex justify-start animate-fade-in">
-            <div className={`w-8 h-8 rounded-xl mr-3 flex-shrink-0 flex items-center justify-center ${theme === 'dark' ? 'bg-indigo-500/20' : 'bg-indigo-100'}`}>
-              <svg className={`w-4 h-4 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </div>
-            <div className={`p-4 rounded-2xl shadow-md backdrop-blur-sm ${theme === 'dark'
-              ? 'bg-gray-800/70 text-gray-100 border border-gray-700/50'
-              : 'bg-white text-gray-800 border border-gray-200/50'
-              }`}>
-              <div className="flex items-center space-x-3">
-                <div className="flex space-x-1.5">
-                  <div className="w-2.5 h-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                  <div className="w-2.5 h-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></div>
-                  <div className="w-2.5 h-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></div>
-                </div>
-                <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Crafting your code...</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className={`border-t p-4 ${theme === 'dark' ? 'bg-gray-900/80 backdrop-blur-xl border-gray-800/50' : 'bg-white/80 backdrop-blur-xl border-gray-200/50'}`}>
-        <form onSubmit={handleSubmit} className="flex gap-3">
-          <div className={`flex-1 flex items-center gap-2 px-4 py-3 rounded-2xl border-2 transition-all duration-200 focus-within:border-indigo-500 ${theme === 'dark'
-            ? 'bg-gray-800/50 border-gray-700/50'
-            : 'bg-white border-gray-200'
-            }`}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Describe the web page you want to create..."
-              className={`flex-1 text-sm sm:text-base bg-transparent focus:outline-none ${theme === 'dark'
-                ? 'text-gray-100 placeholder-gray-500'
-                : 'text-gray-900 placeholder-gray-400'
-                }`}
-              disabled={isLoading}
-            />
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              multiple
-              onChange={handleFileSelect}
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className={`p-2 rounded-xl transition-all duration-200 ${theme === 'dark'
-                ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-700/50'
-                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-                }`}
-              title="Add images"
-              disabled={isLoading}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-              </svg>
+      {activeTab === 'ai' ? (
+        <>
+          {/* AI Header */}
+          <div className="flex items-center justify-between p-6 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+              </div>
+              <span className="text-sm font-black text-white uppercase tracking-widest">AI Assistant</span>
+            </div>
+            <button className="p-2 text-gray-500 hover:text-white transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
             </button>
           </div>
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="px-5 sm:px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-medium shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transform active:scale-95 flex items-center justify-center gap-2"
-            title="Send message"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-            <span className="hidden sm:inline">Send</span>
-          </button>
-        </form>
-      </div>
+
+          {/* Messages */}
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} animate-fade-in`}
+              >
+                <div className={`w-8 h-8 rounded-xl shrink-0 flex items-center justify-center shadow-lg ${message.role === 'assistant'
+                  ? 'bg-gradient-to-tr from-indigo-600 to-purple-600 text-white'
+                  : 'bg-white/5 border border-white/10 text-gray-400'}`}>
+                  {message.role === 'assistant' ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  ) : 'U'}
+                </div>
+                <div className={`flex flex-col gap-2 max-w-[85%] ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  <div className={`p-4 rounded-[1.5rem] shadow-2xl transition-all duration-300 ${message.role === 'user'
+                    ? 'bg-indigo-600 text-white rounded-tr-none'
+                    : 'bg-white/5 border border-white/5 text-gray-100 rounded-tl-none hover:bg-white/10'
+                    }`}>
+                    <p className="text-[13px] font-medium leading-relaxed">{message.content}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {isLoading && (
+              <div className="flex gap-4 animate-fade-in">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg">
+                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                </div>
+                <div className="bg-white/5 border border-white/5 p-4 rounded-2xl rounded-tl-none">
+                  <span className="text-xs font-bold text-gray-400 animate-pulse">Generating new options...</span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Chat Input */}
+          <div className="p-6">
+            <form onSubmit={handleSubmit} className="relative group">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type a message..."
+                className="w-full bg-white/5 border border-white/5 rounded-2xl pl-6 pr-14 py-4 text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all shadow-inner"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-500/20 hover:scale-110 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
+              >
+                <svg className="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z" /></svg>
+              </button>
+            </form>
+          </div>
+        </>
+      ) : activeTab === 'components' ? (
+        <div className="flex-1 p-6 flex flex-col items-center justify-center text-center gap-4">
+          <div className="w-20 h-20 rounded-[2rem] bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+          </div>
+          <h3 className="text-xl font-bold text-white">Advanced Components</h3>
+          <p className="text-sm text-gray-500 max-w-xs">Drag and drop premium components directly into your project. Coming soon!</p>
+        </div>
+      ) : (
+        <div className="flex-1 p-6 flex flex-col items-center justify-center text-center gap-4">
+          <div className="w-20 h-20 rounded-[2rem] bg-purple-500/10 flex items-center justify-center text-purple-400">
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+          </div>
+          <h3 className="text-xl font-bold text-white">Advanced Styles</h3>
+          <p className="text-sm text-gray-500 max-w-xs">Fine-tune every pixel with precision style controls. Feature in development.</p>
+        </div>
+      )}
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+      `}</style>
     </div>
   );
 }
