@@ -13,6 +13,8 @@ import NewProjectModal from './components/NewProjectModal';
 import UserMenu from './components/UserMenu';
 import PPTPanel from './components/PPTPanel';
 import PPTPreview from './components/PPTPreview';
+import PDFPanel from './components/PDFPanel';
+import PDFPreview from './components/PDFPreview';
 import {
   getProjects,
   createProject as createProjectInDb,
@@ -108,6 +110,8 @@ export default function Home() {
   const [activeView, setActiveView] = useState<string>('dashboard');
   const [pptSlides, setPptSlides] = useState<any[]>([]);
   const [isPPTLoading, setIsPPTLoading] = useState(false);
+  const [pdfDocument, setPdfDocument] = useState<any>(null);
+  const [isPDFLoading, setIsPDFLoading] = useState(false);
   const [settingsTab, setSettingsTab] = useState<string>('Account');
   const [mobileView, setMobileView] = useState<'chat' | 'preview'>('chat'); // Mobile toggle between chat and preview
   const [generatedPages, setGeneratedPages] = useState<Record<string, { title: string; html: string; css: string; js: string; }> | undefined>(undefined);
@@ -654,6 +658,20 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                 <PPTPreview slides={pptSlides} isLoading={isPPTLoading} />
               </div>
             </div>
+          ) : activeView === 'pdf' ? (
+            /* PDF View */
+            <div className="flex flex-col md:flex-row flex-1 relative w-full h-full overflow-hidden">
+              <div className={`flex flex-col w-full md:w-1/3 h-full overflow-hidden transition-all duration-300 border-r ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}>
+                <PDFPanel
+                  onPDFGenerated={setPdfDocument}
+                  onLoadingChange={setIsPDFLoading}
+                  onBack={() => setActiveView('dashboard')}
+                />
+              </div>
+              <div className="flex flex-col flex-1 h-full overflow-hidden">
+                <PDFPreview document={pdfDocument} isLoading={isPDFLoading} />
+              </div>
+            </div>
           ) : (
             /* Main Content Views */
             <div className={`flex-1 flex flex-col relative overflow-y-auto ${theme === 'dark' ? 'bg-[#0f1117]' : 'bg-gray-50'}`}>
@@ -686,7 +704,7 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                       </div>
 
                       {/* Mode Selection Grid */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto w-full px-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto w-full px-4">
                         <button
                           onClick={() => handleNewProject(false)}
                           className="group relative flex flex-col items-center p-10 rounded-[2.5rem] bg-[#1a1c23]/60 backdrop-blur-md border border-white/5 hover:border-indigo-500/50 transition-all duration-500 shadow-2xl hover:-translate-y-2"
@@ -723,6 +741,20 @@ ${project.lastGeneratedCode ? 'This project contains generated HTML, CSS, and Ja
                           </div>
                           <h3 className="text-2xl font-black text-white mb-2 text-center">PPT Make</h3>
                           <p className="text-gray-500 text-sm font-medium text-center">Create stunning presentations with AI</p>
+                        </button>
+
+                        <button
+                          onClick={() => setActiveView('pdf')}
+                          className="group relative flex flex-col items-center p-10 rounded-[2.5rem] bg-[#1a1c23]/60 backdrop-blur-md border border-white/5 hover:border-red-500/50 transition-all duration-500 shadow-2xl hover:-translate-y-2"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-br from-red-600/5 to-transparent rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <div className="w-20 h-20 rounded-3xl bg-red-600/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner">
+                            <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-2xl font-black text-white mb-2 text-center">PDF Make</h3>
+                          <p className="text-gray-500 text-sm font-medium text-center">Generate professional documents with AI</p>
                         </button>
                       </div>
 
